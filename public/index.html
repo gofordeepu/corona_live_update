@@ -1,0 +1,209 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corona live</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<link rel="icon" href="virus.png">
+<style>
+    body{
+        background-image: url('corona.png');
+    }
+    .global{
+        margin-left: 20em;
+        margin-top: 3em;
+        background-color: red;
+        width: 735px;
+    }
+    .country{
+        width: 90%;
+        height: 50%;
+        margin-left: 5em;
+        background-color: yellow;
+        overflow-y: scroll;
+    }
+    .search{
+        background-color: pink;
+       text-align: center;
+       height: 4em;
+       width: 90%;
+       padding: 7px;
+       margin-left: 5em;
+    }
+    #back-btn{
+       display: none;
+        margin-left: 40em;
+    }
+</style>
+</head>
+<body>
+    <h1 style="color: white; font-family: cursive; font-weight: bolder; text-shadow:2px 2px red; text-decoration:underline;"><center>Corona Live Updates</center></h1>
+    <div class="global">
+        <table width="500px" style="color: white; border: 2px solid white; " cellpadding='7px' cellspacing='0px'>
+       <tr>
+           <th colspan="6" style="text-decoration: underline;">World-Wide Corona Cases:</th>
+       </tr>
+    <tbody id="global-data" style="border: 2px dashed white;">
+        <tr>
+
+        
+    </tbody>
+        </table>
+    </div>
+        <br>
+        <div class="search">
+            <label for="country"><strong> country name</strong></label>
+            <input type="text" name="" id="country-name" placeholder="Enter country name">
+            <button id="search-btn"  class="btn btn-dark">search</button>
+        </div>
+        <div class="country">
+          
+            <table id='country-wise' border="2px" width='100%' cellspacing='0' cellpadding='5px'>
+                <tr>
+                    <th>Sl no.</th>
+                    <th>Country</th>
+                    <th>New confirmed</th>
+                    <th>New Deaths</th>
+                    <th>New Recovered</th>
+                    <th>Total confirmed</th>
+                    <th>Total Deaths</th>
+                    <th>Total Recovered</th>
+                </tr>
+            </table>
+        </div>
+           <button id="back-btn" class="btn btn-primary">Back</button>
+        </div>
+      
+
+<!--jQurey coding for api fetching......-->
+    <script>
+        $(document).ready(function () {  
+            var cases;
+            var sno=0;
+    $.ajax({
+         url:"https://api.covid19api.com/summary",
+         type:"GET",
+         dataType:"JSON",
+         success:function(data)
+         {
+             cases=data;
+              $.each(data.Global,function (key,value) {
+                  $('#global-data').append("<th style='border:2px dashed white'>"+key+"</th>");
+                });
+                $('#global-data').append('</tr>')
+                $('#global-data').append('<tr>')
+                $.each(data.Global,function (key,value) {
+                  $('#global-data').append("<td style='border:2px dashed white'>"+value+"</td>");
+                });
+                $('#global-data').append('</tr>');
+                $.each(data.Countries,function(key,value){
+                    sno++;
+                   $('#country-wise').append(
+                                        "<tr>"+
+                                     "<td>"+sno+"</td>"+
+                                     "<td>"+value.Country.toUpperCase() +"</td>"+
+                                     "<td>"+value.NewConfirmed+"</td>"+
+                                     "<td>"+value.NewDeaths+"</td>"+
+                                     "<td>"+value.NewRecovered +"</td>"+
+                                     "<td>"+value.TotalConfirmed+"</td>"+
+                                     "<td>"+value.TotalDeaths+"</td>"+
+                                     "<td>"+value.TotalRecovered+"</td>"+
+                                     "</tr>"
+                                     );
+                });
+                sno=0;
+         }
+      
+    });  
+
+// fetching data completed now starts searching event.....
+
+            $("#search-result").hide();
+            var row=0;
+            var result;
+           $("#search-btn").click(function(){
+            $("#back-btn").show();
+            var n=1;
+            country_name=$("#country-name").val().toUpperCase();
+               $.each(cases.Countries,function(key,value){
+                     if(value.Country.toUpperCase()==country_name)
+                     {
+                         row=1;
+                         result={sno:n,Country:value.Country.toUpperCase(),NewConfirmed:value.NewConfirmed,NewDeaths:value.NewDeaths,NewRecovered:value.NewRecovered,TotalConfirmed:value.TotalConfirmed,TotalDeaths:value.TotalDeaths,TotalRecovered:value.TotalRecovered};
+                      
+                     }
+                     else{
+                         n++;
+                     }
+               });
+               if(row==1)
+               {   
+                $("#country-name").val('');
+                   console.log("found");
+                   $('#country-wise').html("<tr>"+
+                                           "<th>Sl no.</th>"+
+                                          " <th>Country</th>"+
+                                           "<th>New confirmed</th>"+
+                                           "<th>New Deaths</th>"+
+                                            "<th>New Recovered</th>"+
+                                           "<th>Total confirmed</th>"+
+                                           "<th>Total Deaths</th>"+
+                                           " <th>Total Recovered</th>"+
+
+                                         "</tr>"+
+                                      "<tr>"+
+                                     "<td>"+result.sno+"</td>"+
+                                     "<td>"+result.Country +"</td>"+
+                                     "<td>"+result.NewConfirmed+"</td>"+
+                                     "<td>"+result.NewDeaths+"</td>"+
+                                     "<td>"+result.NewRecovered +"</td>"+
+                                     "<td>"+result.TotalConfirmed+"</td>"+
+                                     "<td>"+result.TotalDeaths+"</td>"+
+                                     "<td>"+result.TotalRecovered+"</td>"
+                                     );
+               }
+               else{
+                   console.log("not found");
+                   $('#country-wise').html("<h1>No such country found</h1>");
+               }
+            row=0;
+               
+           });
+           $("#back-btn").click(function(){
+             $('#back-btn').hide();
+             $('#country-wise').html(`<tr>
+                    <th>Sl no.</th>
+                    <th>Country</th>
+                    <th>New confirmed</th>
+                    <th>New Deaths</th>
+                    <th>New Recovered</th>
+                    <th>Total confirmed</th>
+                    <th>Total Deaths</th>
+                    <th>Total Recovered</th>
+                </tr>`);
+                $.each(cases.Countries,function(key,value){
+                    sno++;
+                   $('#country-wise').append(
+                                        "<tr>"+
+                                     "<td>"+sno+"</td>"+
+                                     "<td>"+value.Country.toUpperCase() +"</td>"+
+                                     "<td>"+value.NewConfirmed+"</td>"+
+                                     "<td>"+value.NewDeaths+"</td>"+
+                                     "<td>"+value.NewRecovered +"</td>"+
+                                     "<td>"+value.TotalConfirmed+"</td>"+
+                                     "<td>"+value.TotalDeaths+"</td>"+
+                                     "<td>"+value.TotalRecovered+"</td>"+
+                                     "</tr>"
+                                     );
+                }); 
+                sno=0;   
+              
+           });
+           
+        });
+    </script>
+</body>
+</html>
